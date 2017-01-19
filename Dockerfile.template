@@ -1,0 +1,27 @@
+# Start from the Debian base image
+# (alpine would be another good choice and make an even smaller image)
+FROM resin/%%RESIN_MACHINE_NAME%%-debian
+
+# install ssh and a webserver
+RUN apt-get update \
+  && apt-get install -qy \
+    ssh \
+    apache2 \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Add the web files
+WORKDIR /var/www/html
+COPY index.html ./
+
+# Defines our working directory in container
+WORKDIR /app
+
+# Copy our script to /app
+COPY start.sh ./
+
+# Enable systemd init system in container
+ENV INITSYSTEM=on
+
+# Run server when container runs on device
+CMD ["bash", "start.sh"]
